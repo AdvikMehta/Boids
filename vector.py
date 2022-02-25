@@ -35,16 +35,20 @@ class Vector:
         elif isinstance(size, Vector):
             sizex = size.x
             sizey = size.y
-        return Vector(random() * sizex, random() * sizey)
+        return Vector(uniform(-1, 1) * sizex, uniform(-1, 1) * sizey)
 
     @staticmethod
     def randomUnitCircle():
         d = random() * pi
-        return Vector(int(cos(d) * choice([1, -1])), int(sin(d) * choice([1, -1])))
+        return Vector(int(5 * cos(d) * choice([1, -1])), int(5 * sin(d) * choice([1, -1])))
 
     @staticmethod
     def distance(a, b):
         return (a - b).getLength()
+
+    @staticmethod
+    def Zero():
+        return Vector(0, 0)
 
     @staticmethod
     def angle(v1, v2):
@@ -73,11 +77,75 @@ class Vector:
         else:
             return Vector(0, 0)
 
+    def setMag(self, new_mag):
+        mag = sqrt(self.x ** 2 + self.y ** 2)
+        if mag == 0:
+            self.x = new_mag / sqrt(2)
+            self.y = new_mag / sqrt(2)
+        else:
+            self.x *= new_mag / mag
+            self.y *= new_mag / mag
+
+    def limit(self, mag):
+        current_mag = sqrt(self.x ** 2 + self.y ** 2)
+        if current_mag > mag:
+            self.x *= mag / current_mag
+            self.y *= mag / current_mag
+
     def dotproduct(self, other):
         if isinstance(other, Vector):
             return self.x * other.x + self.y * other.y
         elif isinstance(other, tuple) or isinstance(other, list):
             return self.x * other[0] + self.y * other[1]
+        else:
+            return NotImplemented
+
+    def add(self, other):
+        if isinstance(other, Vector):
+            self.x += other.x
+            self.y += other.y
+        elif isinstance(other, (int, float)):
+            self.x += other
+            self.y += other
+        else:
+            return NotImplemented
+        return self
+
+    def subtract(self, other):
+        if isinstance(other, Vector):
+            self.x -= other.x
+            self.y -= other.y
+        elif isinstance(other, (int, float)):
+            self.x -= other
+            self.y -= other
+        else:
+            return NotImplemented
+        return self
+
+    def multiply(self, other):
+        if isinstance(other, Vector):
+            self.x *= other.x
+            self.y *= other.y
+        elif isinstance(other, (int, float)):
+            self.x *= other
+            self.y *= other
+        else:
+            return NotImplemented
+        return self
+
+    def divide(self, other):
+        if isinstance(other, Vector):
+            self.x /= other.x
+            self.y /= other.y
+            return self
+        elif isinstance(other, tuple) or isinstance(other, list):
+            self.x /= other[0]
+            self.y /= other[1]
+            return self
+        elif isinstance(other, int) or isinstance(other, float):
+            self.x /= other
+            self.y /= other
+            return self
         else:
             return NotImplemented
 
@@ -127,7 +195,9 @@ class Vector:
         elif isinstance(other, tuple) or isinstance(other, list):
             return Vector(self.x / other[0], self.y / other[1])
         elif isinstance(other, int) or isinstance(other, float):
-            return Vector(int(self.x / other), int(self.y / other))
+            if other != 0:
+                return Vector(int(self.x / other), int(self.y / other))
+            return self
         else:
             return NotImplemented
 
