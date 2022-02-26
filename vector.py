@@ -73,7 +73,7 @@ class Vector:
 
     def getNormalized(self):
         if self.getLength() != 0:
-            return self / self.getLength()
+            return self.divide(self.getLength())
         else:
             return Vector(0, 0)
 

@@ -19,17 +19,17 @@ class Boid:
     # control max speed for avergage velocity of boids
     # reduce max force for bigger groups with more separation
 
-    def __init__(self):
+    def __init__(self, boid_type):
         self.position = Vector(randint(0,SIM_WIDTH), randint(0, SIM_WIDTH))
         self.velocity = Vector.random()
         self.velocity.setMag(self.MAX_VELOCITY)
         self.acceleration = Vector(x=0, y=0)
-        self.type = randint(0, 1)
+        self.type = boid_type
 
     def update(self):
-        self.position += self.velocity
         self.velocity += self.acceleration
         self.velocity.limit(self.MAX_VELOCITY)
+        self.position += self.velocity
         self.acceleration.set(0, 0)
 
     def flock(self, flock):
@@ -64,10 +64,10 @@ class Boid:
         steering = Vector()  # desired location, avg of boids withing perception
         num_boids_in_radius = 0
         for boid in flock:
-            if boid is not self and self.getDistance(self.position, boid.position) <= self.COHESION_PERCEPTION\
-                    and self.type == boid.type:
-                num_boids_in_radius += 1
-                steering.add(boid.position)
+            if boid is not self and self.getDistance(self.position, boid.position) <= self.COHESION_PERCEPTION:
+                if self.type == boid.type:
+                    num_boids_in_radius += 1
+                    steering.add(boid.position)
         if num_boids_in_radius > 0:
             steering.divide(num_boids_in_radius)
             steering.subtract(self.position)
@@ -81,8 +81,7 @@ class Boid:
         num_boids_in_radius = 0
         for boid in flock:
             distance = self.getDistance(self.position, boid.position)
-            if boid is not self and distance < self.SEPARATION_PERCEPTION\
-                    and self.type == boid.type:
+            if boid is not self and distance < self.SEPARATION_PERCEPTION:
                 difference = self.position - boid.position
                 difference.divide(distance)  # inversely proportional
                 steering.add(difference)
@@ -108,7 +107,12 @@ class Boid:
         return sqrt((a.x-b.x)**2 + (a.y-b.y)**2)
 
     def draw(self, screen):
+        # relative = self.position + self.velocity
+        # relative.add(10)
+        # pygame.draw.line(screen, (0, 0, 0), (self.position.x, self.position.y), (relative.x, relative.y))
         if self.type == 0:
             pygame.draw.circle(screen, (30, 144, 255), (self.position.x, self.position.y), 4)
-        else:
+        elif self.type == 1:
             pygame.draw.circle(screen, (75, 0, 130), (self.position.x, self.position.y), 4)
+        else:
+            pygame.draw.circle(screen, (204, 0, 0), (self.position.x, self.position.y), 4)

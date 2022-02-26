@@ -10,8 +10,12 @@ MARGIN = 10
 flock = []
 
 def setup():
-    for _ in range(100):
-        flock.append(Boid())
+    for _ in range(50):
+        flock.append(Boid(0))
+    for _ in range(50):
+        flock.append(Boid(1))
+    for _ in range(1):
+        flock.append(Boid(2))
 
 def drawWindow(screen):
     screen.fill((255, 255, 255))
