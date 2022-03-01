@@ -16,6 +16,10 @@ class Boid:
     MAX_FORCE = 0.1
     TURN_FACTOR = 1
 
+    COLORS = [((135, 206, 250), (30, 144, 255)),
+              ((216, 191, 216), (75, 0, 130)),
+              ((204, 0, 0), (204, 0, 0))]
+
     # control max speed for avergage velocity of boids
     # reduce max force for bigger groups with more separation
 
@@ -25,12 +29,22 @@ class Boid:
         self.velocity.setMag(self.MAX_VELOCITY)
         self.acceleration = Vector(x=0, y=0)
         self.type = boid_type
+        self.prev_position = self.position
+        self.colors = self.COLORS[self.type]
 
     def update(self):
         self.velocity += self.acceleration
         self.velocity.limit(self.MAX_VELOCITY)
         self.position += self.velocity
         self.acceleration.set(0, 0)
+
+    def updateVelocity(self):
+        self.velocity += self.acceleration
+        self.velocity.limit(self.MAX_VELOCITY)
+        self.acceleration.set(0, 0)
+
+    def updatePosition(self):
+        self.position += self.velocity
 
     def flock(self, flock):
         alignment = self.align(flock)
@@ -107,12 +121,12 @@ class Boid:
         return sqrt((a.x-b.x)**2 + (a.y-b.y)**2)
 
     def draw(self, screen):
-        # relative = self.position + self.velocity
-        # relative.add(10)
-        # pygame.draw.line(screen, (0, 0, 0), (self.position.x, self.position.y), (relative.x, relative.y))
-        if self.type == 0:
-            pygame.draw.circle(screen, (30, 144, 255), (self.position.x, self.position.y), 4)
-        elif self.type == 1:
-            pygame.draw.circle(screen, (75, 0, 130), (self.position.x, self.position.y), 4)
-        else:
-            pygame.draw.circle(screen, (204, 0, 0), (self.position.x, self.position.y), 4)
+        copy = Vector(self.velocity.x, self.velocity.y)
+        copy.setMag(8)
+        relative_next = self.position + copy
+        copy.setMag(4)
+        relative_prev = self.position - copy
+        pygame.draw.line(screen, (0, 0, 0), (self.position.x, self.position.y), (relative_next.x, relative_next.y))
+
+        pygame.draw.circle(screen, self.colors[0], (relative_prev.x, relative_prev.y), 4)
+        pygame.draw.circle(screen, self.colors[1], (self.position.x, self.position.y), 4)

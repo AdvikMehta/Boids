@@ -21,7 +21,14 @@ def drawWindow(screen):
     screen.fill((255, 255, 255))
     for boid in flock:
         boid.draw(screen)
+        boid.prev_position = boid.position
     pygame.display.update()
+
+def turnFlock():
+    turn_factor = Vector(uniform(-50, 50), uniform(-50, 50))
+    turn_factor.setMag(10)
+    for boid in flock:
+        boid.velocity.add(turn_factor)
 
 def main():
     running = True
@@ -44,7 +51,8 @@ def main():
         for boid in flock:
             boid.checkBounds()  # checks for out of bounds boids
             boid.flock(flock)  # set acceleration
-            boid.update()  # updates positions
+            boid.updateVelocity()  # updates positions
+            boid.updatePosition()
 
         drawWindow(screen)
 
