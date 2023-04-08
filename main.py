@@ -51,8 +51,7 @@ def main():
         for boid in flock:
             boid.checkBounds()  # checks for out of bounds boids
             boid.flock(flock)  # set acceleration
-            boid.updateVelocity()  # updates positions
-            boid.updatePosition()
+            boid.update()  # updates positions
 
         drawWindow(screen)
 

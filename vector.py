@@ -58,6 +58,10 @@ class Vector:
     def angleDeg(v1, v2):
         return Vector.angle(v1, v2) * 180.0 / pi
 
+    @staticmethod
+    def getDistance(a, b):
+        return sqrt((a.x-b.x)**2 + (a.y-b.y)**2)
+
     def set(self, x, y):
         self.x = x
         self.y = y

@@ -14,7 +14,7 @@ class Boid:
     SEPARATION_SCALE = 1
     MAX_VELOCITY = 6
     MAX_FORCE = 0.1
-    TURN_FACTOR = 1
+    TURN_FACTOR = 0.8
 
     COLORS = [((135, 206, 250), (30, 144, 255)),
               ((216, 191, 216), (75, 0, 130)),
@@ -24,6 +24,7 @@ class Boid:
     # reduce max force for bigger groups with more separation
 
     def __init__(self, boid_type):
+        # boid mechanics
         self.position = Vector(randint(0,SIM_WIDTH), randint(0, SIM_WIDTH))
         self.velocity = Vector.random()
         self.velocity.setMag(self.MAX_VELOCITY)
@@ -38,16 +39,8 @@ class Boid:
         self.position += self.velocity
         self.acceleration.set(0, 0)
 
-    def updateVelocity(self):
-        self.velocity += self.acceleration
-        self.velocity.limit(self.MAX_VELOCITY)
-        self.acceleration.set(0, 0)
-
-    def updatePosition(self):
-        self.position += self.velocity
-
     def flock(self, flock):
-        alignment = self.align(flock)
+        alignment = self.alignment(flock)
         cohesion = self.cohesion(flock)
         separation = self.separation(flock)
 
@@ -59,11 +52,11 @@ class Boid:
         self.acceleration.add(cohesion)
         self.acceleration.add(separation)
 
-    def align(self, flock):
+    def alignment(self, flock):
         steering = Vector()  # desired velocity, avg of boids withing perception
         num_boids_in_radius = 0
         for boid in flock:
-            if boid is not self and self.getDistance(self.position, boid.position) <= self.ALIGNMENT_PERCEPTION\
+            if boid is not self and Vector.getDistance(self.position, boid.position) <= self.ALIGNMENT_PERCEPTION\
                     and self.type == boid.type:
                 num_boids_in_radius += 1
                 steering.add(boid.velocity)
@@ -78,7 +71,7 @@ class Boid:
         steering = Vector()  # desired location, avg of boids withing perception
         num_boids_in_radius = 0
         for boid in flock:
-            if boid is not self and self.getDistance(self.position, boid.position) <= self.COHESION_PERCEPTION:
+            if boid is not self and Vector.getDistance(self.position, boid.position) <= self.COHESION_PERCEPTION:
                 if self.type == boid.type:
                     num_boids_in_radius += 1
                     steering.add(boid.position)
@@ -94,7 +87,7 @@ class Boid:
         steering = Vector()  # desired location, avg of boids withing perception
         num_boids_in_radius = 0
         for boid in flock:
-            distance = self.getDistance(self.position, boid.position)
+            distance = Vector.getDistance(self.position, boid.position)
             if boid is not self and distance < self.SEPARATION_PERCEPTION:
                 difference = self.position - boid.position
                 difference.divide(distance)  # inversely proportional
@@ -116,9 +109,6 @@ class Boid:
             self.velocity.y -= self.TURN_FACTOR
         elif self.position.y < MARGIN:
             self.velocity.y += self.TURN_FACTOR
-
-    def getDistance(self, a, b):
-        return sqrt((a.x-b.x)**2 + (a.y-b.y)**2)
 
     def draw(self, screen):
         copy = Vector(self.velocity.x, self.velocity.y)
